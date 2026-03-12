@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">作业批改助手</string>
+    <string name="login">登录</string>
+    <string name="register">注册</string>
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="real_name">真实姓名</string>
+    <string name="email">邮箱（可选）</string>
+    <string name="role_student">学生</string>
+    <string name="role_teacher">教师</string>
+    <string name="no_account">还没有账号？立即注册</string>
+    <string name="already_account">已有账号？去登录</string>
+    <string name="logout">退出登录</string>
+
+    <!-- 教师端 -->
+    <string name="assignments">作业管理</string>
+    <string name="submissions">提交记录</string>
+    <string name="statistics">统计分析</string>
+    <string name="create_assignment">创建作业</string>
+    <string name="assignment_title">作业标题</string>
+    <string name="assignment_desc">作业说明</string>
+    <string name="subject">学科</string>
+    <string name="class_id">班级ID</string>
+    <string name="publish">发布作业</string>
+    <string name="add_question">添加题目</string>
+
+    <!-- 学生端 -->
+    <string name="my_homework">我的作业</string>
+    <string name="my_submissions">提交记录</string>
+    <string name="upload_homework">上传作业</string>
+    <string name="take_photo">拍照</string>
+    <string name="pick_gallery">从相册选择</string>
+    <string name="submit">提交</string>
+
+    <!-- 通用 -->
+    <string name="grading_detail">批改详情</string>
+    <string name="loading">加载中…</string>
+    <string name="retry">重试</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确认</string>
+    <string name="score">得分</string>
+    <string name="total_score">总分</string>
+    <string name="correct">正确</string>
+    <string name="wrong">错误</string>
+    <string name="partial">部分正确</string>
+    <string name="feedback">批改反馈</string>
+    <string name="student_answer">学生答案</string>
+    <string name="status_pending">⏳ 等待识别</string>
+    <string name="status_recognizing">🔍 识别中…</string>
+    <string name="status_grading">📝 批改中…</string>
+    <string name="status_done">🎉 批改完成</string>
+    <string name="status_failed">❌ 处理失败</string>
+    <string name="avg_score">平均分</string>
+    <string name="max_score">最高分</string>
+    <string name="min_score">最低分</string>
+    <string name="pass_rate">及格率</string>
+    <string name="submitted">已提交</string>
+    <string name="graded">已批改</string>
+    <string name="total">总数</string>
+</resources>
