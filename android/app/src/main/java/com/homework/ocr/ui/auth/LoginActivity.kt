@@ -52,6 +52,12 @@ class LoginActivity : AppCompatActivity() {
         binding.tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+        binding.btnDemoStudent.setOnClickListener {
+            viewModel.demoLogin(1)
+        }
+        binding.btnDemoTeacher.setOnClickListener {
+            viewModel.demoLogin(2)
+        }
     }
 
     private fun navigateToMain(data: LoginData) {
