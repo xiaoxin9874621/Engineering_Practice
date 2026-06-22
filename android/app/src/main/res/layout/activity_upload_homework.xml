@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:navigationIcon="@android:drawable/ic_media_previous"
-        android:title="上传作业" />
+        android:title="提交作业" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -23,7 +23,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- 作业标题 -->
             <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="match_parent"
@@ -34,8 +33,7 @@
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="20dp" />
 
-            <!-- 图片预览区域 -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="260dp"
                 style="@style/CardStyle">
@@ -51,7 +49,6 @@
                         android:scaleType="centerCrop"
                         android:contentDescription="作业图片预览" />
 
-                    <!-- 占位文字（未选图时显示） -->
                     <LinearLayout
                         android:id="@+id/llPlaceholder"
                         android:layout_width="match_parent"
@@ -64,7 +61,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="📷"
-                            android:textSize="48sp" />
+                            android:textSize="42sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -75,20 +72,18 @@
                             android:layout_marginTop="8dp" />
                     </LinearLayout>
                 </FrameLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <!-- 提示信息 -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="💡 提示：请保持图片清晰，确保所有答题内容完整可见，支持 JPG/PNG 格式，最大 10MB"
+                android:text="提示：请保持图片清晰，确保所有答题内容完整可见，支持 JPG/PNG，最大 10MB"
                 android:textSize="13sp"
                 android:textColor="@color/text_secondary"
                 android:background="@color/pending_bg"
                 android:padding="12dp"
                 android:layout_marginBottom="20dp" />
 
-            <!-- 拍照和相册按钮 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -102,7 +97,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    android:text="📷 拍照" />
+                    android:text="拍照" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnGallery"
@@ -110,10 +105,9 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:text="🖼 相册" />
+                    android:text="相册" />
             </LinearLayout>
 
-            <!-- 进度条 -->
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
@@ -122,11 +116,10 @@
                 android:layout_gravity="center"
                 android:layout_marginBottom="8dp" />
 
-            <!-- 提交按钮 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnUpload"
                 style="@style/PrimaryButton"
-                android:text="🚀 提交作业"
+                android:text="提交作业"
                 android:enabled="false" />
 
         </LinearLayout>
