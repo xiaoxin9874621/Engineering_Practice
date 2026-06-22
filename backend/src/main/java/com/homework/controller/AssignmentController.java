@@ -1,6 +1,7 @@
 package com.homework.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.homework.common.R;
 import com.homework.entity.Assignment;
 import com.homework.entity.QuestionItem;
@@ -13,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import java.util.Map;
 public class AssignmentController {
 
     private final AssignmentService assignmentService;
+    private final ObjectMapper objectMapper;
 
     @Operation(summary = "教师创建作业")
     @PostMapping
@@ -37,8 +40,15 @@ public class AssignmentController {
         assignment.setSubject((String) body.get("subject"));
         assignment.setStatus(1);
 
-        @SuppressWarnings("unchecked")
-        List<QuestionItem> questions = (List<QuestionItem>) body.get("questions");
+        List<QuestionItem> questions = objectMapper.convertValue(
+                body.get("questions"),
+                objectMapper.getTypeFactory().constructCollectionType(List.class, QuestionItem.class)
+        );
+        BigDecimal totalScore = questions == null ? BigDecimal.ZERO : questions.stream()
+                .map(QuestionItem::getScore)
+                .filter(score -> score != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        assignment.setTotalScore(totalScore.compareTo(BigDecimal.ZERO) > 0 ? totalScore : BigDecimal.valueOf(100));
         return R.ok(assignmentService.createAssignment(assignment, questions));
     }
 
@@ -52,7 +62,16 @@ public class AssignmentController {
         return R.ok(assignmentService.listByTeacher(principal.getUserId(), page, size));
     }
 
-    @Operation(summary = "学生根据班级查询作业列表")
+    @Operation(summary = "学生查看自己所在班级的作业列表")
+    @GetMapping("/student")
+    public R<Page<Assignment>> listByStudentClasses(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return R.ok(assignmentService.listByStudentClasses(principal.getUserId(), page, size));
+    }
+
+    @Operation(summary = "根据班级查询作业列表")
     @GetMapping("/class/{classId}")
     public R<Page<Assignment>> listByClass(
             @PathVariable Long classId,
@@ -61,7 +80,7 @@ public class AssignmentController {
         return R.ok(assignmentService.listByClass(classId, page, size));
     }
 
-    @Operation(summary = "查询作业详情（含题目）")
+    @Operation(summary = "查询作业详情")
     @GetMapping("/{id}")
     public R<Map<String, Object>> detail(@PathVariable Long id) {
         Assignment assignment = assignmentService.getById(id);
@@ -69,7 +88,7 @@ public class AssignmentController {
         return R.ok(Map.of("assignment", assignment, "questions", questions));
     }
 
-    @Operation(summary = "更新作业状态（发布/结束）")
+    @Operation(summary = "更新作业状态")
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     public R<Void> updateStatus(@PathVariable Long id, @RequestParam Integer status) {
