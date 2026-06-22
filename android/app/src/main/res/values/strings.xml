@@ -13,7 +13,6 @@
     <string name="already_account">已有账号？去登录</string>
     <string name="logout">退出登录</string>
 
-    <!-- 教师端 -->
     <string name="assignments">作业管理</string>
     <string name="submissions">提交记录</string>
     <string name="statistics">统计分析</string>
@@ -21,11 +20,10 @@
     <string name="assignment_title">作业标题</string>
     <string name="assignment_desc">作业说明</string>
     <string name="subject">学科</string>
-    <string name="class_id">班级ID</string>
+    <string name="class_id">班级 ID</string>
     <string name="publish">发布作业</string>
     <string name="add_question">添加题目</string>
 
-    <!-- 学生端 -->
     <string name="my_homework">我的作业</string>
     <string name="my_submissions">提交记录</string>
     <string name="upload_homework">上传作业</string>
@@ -33,7 +31,6 @@
     <string name="pick_gallery">从相册选择</string>
     <string name="submit">提交</string>
 
-    <!-- 通用 -->
     <string name="grading_detail">批改详情</string>
     <string name="loading">加载中…</string>
     <string name="retry">重试</string>
@@ -46,11 +43,11 @@
     <string name="partial">部分正确</string>
     <string name="feedback">批改反馈</string>
     <string name="student_answer">学生答案</string>
-    <string name="status_pending">⏳ 等待识别</string>
-    <string name="status_recognizing">🔍 识别中…</string>
-    <string name="status_grading">📝 批改中…</string>
-    <string name="status_done">🎉 批改完成</string>
-    <string name="status_failed">❌ 处理失败</string>
+    <string name="status_pending">等待识别</string>
+    <string name="status_recognizing">识别中</string>
+    <string name="status_grading">批改中</string>
+    <string name="status_done">批改完成</string>
+    <string name="status_failed">处理失败</string>
     <string name="avg_score">平均分</string>
     <string name="max_score">最高分</string>
     <string name="min_score">最低分</string>
