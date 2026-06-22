@@ -43,6 +43,14 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun demoLogin(role: Int) {
+        viewModelScope.launch {
+            _loading.value = true
+            _loginResult.value = repository.demoLogin(role)
+            _loading.value = false
+        }
+    }
+
     fun logout() {
         viewModelScope.launch { repository.logout() }
     }
