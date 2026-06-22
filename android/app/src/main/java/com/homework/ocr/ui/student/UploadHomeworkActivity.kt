@@ -17,7 +17,8 @@ import com.homework.ocr.viewmodel.HomeworkViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class UploadHomeworkActivity : AppCompatActivity() {
@@ -25,34 +26,35 @@ class UploadHomeworkActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUploadHomeworkBinding
     private val viewModel: HomeworkViewModel by viewModels()
     private var assignmentId: Long = 0L
+    private var isResubmit: Boolean = false
     private var currentPhotoFile: File? = null
     private var selectedImageUri: Uri? = null
 
-    // 拍照结果处理
     private val takePictureLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            currentPhotoFile?.let {
-                selectedImageUri = Uri.fromFile(it)
-                binding.ivPreview.setImageURI(selectedImageUri)
-                binding.btnUpload.isEnabled = true
+            currentPhotoFile?.let { file ->
+                selectedImageUri = Uri.fromFile(file)
+                showSelectedImage(selectedImageUri!!)
             }
         }
     }
 
-    // 相册选图结果处理
     private val pickImageLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri ->
-                selectedImageUri = uri
-                binding.ivPreview.setImageURI(uri)
-                binding.btnUpload.isEnabled = true
-                currentPhotoFile = uriToFile(uri)
-            }
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri == null) return@registerForActivityResult
+
+        val copiedFile = uriToFile(uri)
+        if (copiedFile == null) {
+            Toast.makeText(this, "图片读取失败，请重新选择", Toast.LENGTH_SHORT).show()
+            return@registerForActivityResult
         }
+
+        selectedImageUri = uri
+        currentPhotoFile = copiedFile
+        showSelectedImage(uri)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +63,10 @@ class UploadHomeworkActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         assignmentId = intent.getLongExtra("assignmentId", 0L)
-        binding.tvTitle.text = intent.getStringExtra("assignmentTitle") ?: "提交作业"
+        isResubmit = intent.getBooleanExtra("isResubmit", false)
+        val title = intent.getStringExtra("assignmentTitle") ?: "提交作业"
+        binding.tvTitle.text = if (isResubmit) "重新提交：$title" else title
+        binding.btnUpload.text = if (isResubmit) "重新提交作业" else "提交作业"
 
         setupObservers()
         setupClickListeners()
@@ -70,22 +75,25 @@ class UploadHomeworkActivity : AppCompatActivity() {
     private fun setupObservers() {
         viewModel.loading.observe(this) { loading ->
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
-            binding.btnUpload.isEnabled = !loading && selectedImageUri != null
+            binding.btnUpload.isEnabled = !loading && currentPhotoFile != null
         }
+
         viewModel.uploadResult.observe(this) { result ->
             result.onSuccess { submission ->
-                Toast.makeText(this, "上传成功！正在识别和批改中...", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, GradingDetailActivity::class.java)
-                intent.putExtra("submissionId", submission.id)
-                startActivity(intent)
+                Toast.makeText(this, "提交成功，正在识别和批改...", Toast.LENGTH_SHORT).show()
+                startActivity(
+                    Intent(this, GradingDetailActivity::class.java)
+                        .putExtra("submissionId", submission.id)
+                )
                 finish()
             }.onFailure {
-                Toast.makeText(this, "上传失败: ${it.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "提交失败：${it.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
 
     private fun setupClickListeners() {
+        binding.toolbar.setNavigationOnClickListener { finish() }
         binding.btnCamera.setOnClickListener { takePicture() }
         binding.btnGallery.setOnClickListener { pickFromGallery() }
         binding.btnUpload.setOnClickListener {
@@ -94,31 +102,46 @@ class UploadHomeworkActivity : AppCompatActivity() {
         }
     }
 
+    private fun showSelectedImage(uri: Uri) {
+        binding.ivPreview.setImageURI(uri)
+        binding.llPlaceholder.visibility = View.GONE
+        binding.btnUpload.isEnabled = true
+    }
+
     private fun takePicture() {
-        val photoFile = createImageFile()
+        val photoFile = createImageFile("jpg")
         currentPhotoFile = photoFile
         val photoUri = FileProvider.getUriForFile(this, "$packageName.fileprovider", photoFile)
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+            .putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+            .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         takePictureLauncher.launch(intent)
     }
 
     private fun pickFromGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        pickImageLauncher.launch(intent)
+        pickImageLauncher.launch("image/*")
     }
 
-    private fun createImageFile(): File {
+    private fun createImageFile(extension: String = "jpg"): File {
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val dir = getExternalFilesDir(null) ?: filesDir
-        return File(dir, "IMG_${timestamp}.jpg")
+        val dir = File(cacheDir, "submissions").apply { mkdirs() }
+        return File(dir, "IMG_${timestamp}.${extension.lowercase(Locale.ROOT)}")
     }
 
     private fun uriToFile(uri: Uri): File? {
+        val extension = when (contentResolver.getType(uri)) {
+            "image/png" -> "png"
+            "image/webp" -> "webp"
+            else -> "jpg"
+        }
         return try {
-            val inputStream = contentResolver.openInputStream(uri) ?: return null
-            val tempFile = createImageFile()
-            tempFile.outputStream().use { inputStream.copyTo(it) }
+            val tempFile = createImageFile(extension)
+            contentResolver.openInputStream(uri)?.use { input ->
+                tempFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return null
             tempFile
         } catch (e: Exception) {
             null
