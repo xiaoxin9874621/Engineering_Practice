@@ -3,13 +3,13 @@
     <item
         android:id="@+id/tab_homework"
         android:icon="@android:drawable/ic_menu_agenda"
-        android:title="作业列表" />
+        android:title="待完成" />
     <item
         android:id="@+id/tab_submissions"
         android:icon="@android:drawable/ic_menu_upload"
-        android:title="我的提交" />
+        android:title="提交记录" />
     <item
         android:id="@+id/tab_profile"
         android:icon="@android:drawable/ic_menu_myplaces"
-        android:title="我的信息" />
+        android:title="我的" />
 </menu>
