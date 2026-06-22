@@ -27,7 +27,7 @@ public class SubmissionController {
     private final SubmissionService submissionService;
     private final GradingService gradingService;
 
-    @Operation(summary = "学生上传提交作业图片")
+    @Operation(summary = "学生上传作业图片")
     @PostMapping("/upload")
     public R<Submission> upload(
             @RequestParam Long assignmentId,
@@ -45,7 +45,22 @@ public class SubmissionController {
         return R.ok(submissionService.listByStudent(principal.getUserId(), page, size));
     }
 
-    @Operation(summary = "教师查看某作业的提交列表")
+    @Operation(summary = "学生查看自己的错题列表")
+    @GetMapping("/wrong")
+    public R<List<Map<String, Object>>> wrongQuestions(@AuthenticationPrincipal UserPrincipal principal) {
+        return R.ok(submissionService.listWrongQuestions(principal.getUserId()));
+    }
+
+    @Operation(summary = "教师查看自己班级下的全部提交记录")
+    @GetMapping("/teacher")
+    public R<Page<Submission>> teacherSubmissions(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return R.ok(submissionService.listByTeacher(principal.getUserId(), page, size));
+    }
+
+    @Operation(summary = "教师查看某个作业的提交列表")
     @GetMapping("/assignment/{assignmentId}")
     public R<Page<Submission>> submissionsByAssignment(
             @PathVariable Long assignmentId,
