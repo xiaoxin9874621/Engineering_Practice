@@ -6,8 +6,7 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- 我的成绩卡片 -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/CardStyle"
@@ -22,7 +21,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📚 待完成作业"
+                android:text="待完成作业"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -32,13 +31,22 @@
                 android:id="@+id/tvPendingCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="0 项"
                 android:textSize="28sp"
                 android:textStyle="bold"
                 android:textColor="@color/wrong" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
-    <!-- 作业列表 -->
+            <TextView
+                android:id="@+id/tvPendingHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="提交后会自动从待完成列表移除，可在提交记录中重新提交"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
