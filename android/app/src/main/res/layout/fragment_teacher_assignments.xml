@@ -6,8 +6,7 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- 顶部：班级统计信息卡片 -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/CardStyle"
@@ -35,7 +34,6 @@
                 android:orientation="horizontal"
                 android:weightSum="3">
 
-                <!-- 平均分 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -47,7 +45,7 @@
                         android:id="@+id/tvAvgScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="—"
+                        android:text="--"
                         android:textSize="22sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary" />
@@ -60,7 +58,6 @@
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
 
-                <!-- 及格率 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -72,7 +69,7 @@
                         android:id="@+id/tvPassRate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="—"
+                        android:text="--"
                         android:textSize="22sp"
                         android:textStyle="bold"
                         android:textColor="@color/correct" />
@@ -85,7 +82,6 @@
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
 
-                <!-- 已批改 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -110,10 +106,15 @@
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
-    <!-- 作业列表 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCreateAssignment"
+                style="@style/PrimaryButton"
+                android:layout_marginTop="16dp"
+                android:text="创建演示作业" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
