@@ -58,6 +58,7 @@ public class GradingService {
             String studentAnswer = ocrTexts.getOrDefault(question.getQuestionNo(), "");
             GradingResult result = grade(question, studentAnswer);
             result.setSubmissionId(submissionId);
+            result.setCreatedTime(LocalDateTime.now());
             totalScore = totalScore.add(result.getScoreGot());
             results.add(result);
         }
@@ -71,6 +72,7 @@ public class GradingService {
         update.setStatus(4);
         update.setTotalScore(totalScore);
         update.setGradedTime(LocalDateTime.now());
+        update.setUpdatedTime(LocalDateTime.now());
         submissionMapper.updateById(update);
 
         log.info("批改完成 submissionId={} totalScore={}", submissionId, totalScore);
@@ -167,6 +169,7 @@ public class GradingService {
         Submission update = new Submission();
         update.setId(submissionId);
         update.setStatus(status);
+        update.setUpdatedTime(LocalDateTime.now());
         submissionMapper.updateById(update);
     }
 

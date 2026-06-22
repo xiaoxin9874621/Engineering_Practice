@@ -1,6 +1,8 @@
 -- 手写作业OCR识别与批改系统 数据库初始化脚本
 -- 数据库：homework_ocr
 
+SET NAMES utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS homework_ocr DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE homework_ocr;
 
@@ -161,7 +163,50 @@ CREATE TABLE IF NOT EXISTS `statistics_summary` (
     UNIQUE KEY `uk_assignment_class` (`assignment_id`, `class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='统计汇总表';
 
--- 初始化管理员账号（密码：Admin@123 的BCrypt加密值）
-INSERT INTO `users` (`username`, `password`, `real_name`, `role`, `status`)
-VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH', '系统管理员', 3, 1)
-ON DUPLICATE KEY UPDATE `username` = `username`;
+-- 初始化演示账号（统一密码：Demo@123）
+-- admin / Demo@123
+-- teacher / Demo@123
+-- student / Demo@123
+INSERT INTO `users` (`id`, `username`, `password`, `real_name`, `role`, `status`)
+VALUES
+  (1, 'admin', '$2a$10$wfkWDNlaygYPmIPRkkUyUurN6Fy669yUwv1ZqCFBaAyXeOYpXVdDW', '系统管理员', 3, 1),
+  (2, 'teacher', '$2a$10$wfkWDNlaygYPmIPRkkUyUurN6Fy669yUwv1ZqCFBaAyXeOYpXVdDW', '演示教师', 2, 1),
+  (3, 'student', '$2a$10$wfkWDNlaygYPmIPRkkUyUurN6Fy669yUwv1ZqCFBaAyXeOYpXVdDW', '演示学生', 1, 1)
+ON DUPLICATE KEY UPDATE
+  `password` = VALUES(`password`),
+  `real_name` = VALUES(`real_name`),
+  `role` = VALUES(`role`),
+  `status` = VALUES(`status`);
+
+INSERT INTO `classes` (`id`, `class_name`, `class_code`, `teacher_id`, `description`)
+VALUES (1, '一班', 'CLASS001', 2, '系统演示班级')
+ON DUPLICATE KEY UPDATE
+  `class_name` = VALUES(`class_name`),
+  `teacher_id` = VALUES(`teacher_id`),
+  `description` = VALUES(`description`);
+
+INSERT INTO `class_members` (`id`, `class_id`, `student_id`)
+VALUES (1, 1, 3)
+ON DUPLICATE KEY UPDATE `class_id` = VALUES(`class_id`);
+
+INSERT INTO `assignments` (`id`, `title`, `description`, `class_id`, `teacher_id`, `subject`, `deadline`, `total_score`, `status`)
+VALUES
+  (1, '数学周测：一次函数', '完成第 1-3 题并拍照上传，系统会自动 OCR 识别并批改。', 1, 2, '数学', '2026-06-20 18:00:00', 100.00, 1),
+  (2, '语文阅读理解训练', '圈画关键词并完成简答题。', 1, 2, '语文', '2026-06-21 20:00:00', 100.00, 1)
+ON DUPLICATE KEY UPDATE
+  `title` = VALUES(`title`),
+  `description` = VALUES(`description`),
+  `status` = VALUES(`status`);
+
+INSERT INTO `question_items` (`id`, `assignment_id`, `question_no`, `question_type`, `question_text`, `answer_key`, `score`, `grading_mode`, `keywords`)
+VALUES
+  (1, 1, 1, 1, '选择正确答案', 'A', 10.00, 1, NULL),
+  (2, 1, 2, 2, '填写关键概念', '光合作用', 20.00, 1, NULL),
+  (3, 1, 3, 3, '简述一次函数图像特点', '经过两点确定一条直线', 70.00, 2, '["两点","直线","函数"]'),
+  (4, 2, 1, 3, '概括文章中心思想', '围绕关键词作答', 100.00, 2, '["人物","事件","情感"]')
+ON DUPLICATE KEY UPDATE
+  `question_text` = VALUES(`question_text`),
+  `answer_key` = VALUES(`answer_key`),
+  `score` = VALUES(`score`),
+  `grading_mode` = VALUES(`grading_mode`),
+  `keywords` = VALUES(`keywords`);

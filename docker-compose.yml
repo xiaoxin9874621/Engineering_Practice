@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # MySQL 数据库
   mysql:
@@ -10,7 +8,7 @@ services:
       MYSQL_DATABASE: homework_ocr
       MYSQL_CHARSET: utf8mb4
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./backend/src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -31,11 +29,21 @@ services:
       - redis_data:/data
 
   # OCR Python 微服务
+  # ⚠️ Apple Silicon 注意：PaddleOCR 仅有 amd64 wheel，由 Rosetta 模拟运行，
+  # 但 Rosetta 不支持完整 AVX 指令集，会在加载模型时 SIGILL 崩溃，
+  # 因此本服务在 macOS arm64 上"启动了反而会拖死后端"。
+  # 通过 profile=ocr 默认不启动，后端在调用失败时会自动 fallback 到 mock 模式
+  # (OCR_MOCK_WHEN_UNAVAILABLE=true)，演示流程依旧可用。
+  # 想强制拉起 OCR：docker compose --profile ocr up -d
   ocr-service:
+    profiles: ["ocr"]
     build:
       context: ./ocr-service
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
     container_name: homework_ocr
+    platform: linux/amd64
     ports:
       - "5000:5000"
     environment:
@@ -43,25 +51,33 @@ services:
       DEBUG: "false"
     restart: unless-stopped
 
-  # Spring Boot 后端（可选，也可直接 mvn spring-boot:run）
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   container_name: homework_backend
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     mysql:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_started
-  #     ocr-service:
-  #       condition: service_started
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/homework_ocr?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-  #     SPRING_DATA_REDIS_HOST: redis
+  # Spring Boot 后端
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: homework_backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      # ocr-service 默认不启动（见上方注释），不再 depends_on
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/homework_ocr?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_DATA_REDIS_HOST: redis
+      OCR_SERVICE_URL: http://ocr-service:5000
+      OCR_MOCK_WHEN_UNAVAILABLE: "true"
+      FILE_UPLOAD_PATH: /app/uploads
+    volumes:
+      - backend_uploads:/app/uploads
+    restart: unless-stopped
 
 volumes:
   mysql_data:
   redis_data:
+  backend_uploads:
