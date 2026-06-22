@@ -1,8 +1,5 @@
 package com.homework.ocr.model
 
-import com.google.gson.annotations.SerializedName
-
-// ===== 通用响应包装 =====
 data class ApiResponse<T>(
     val code: Int,
     val message: String,
@@ -11,7 +8,6 @@ data class ApiResponse<T>(
     val isSuccess get() = code == 200
 }
 
-// ===== 分页数据 =====
 data class PageData<T>(
     val records: List<T>,
     val total: Long,
@@ -19,7 +15,6 @@ data class PageData<T>(
     val size: Long
 )
 
-// ===== 认证相关 =====
 data class LoginRequest(val username: String, val password: String)
 
 data class RegisterRequest(
@@ -28,7 +23,7 @@ data class RegisterRequest(
     val realName: String,
     val email: String? = null,
     val phone: String? = null,
-    val role: Int  // 1-学生 2-教师
+    val role: Int
 )
 
 data class LoginData(
@@ -40,7 +35,6 @@ data class LoginData(
     val role: Int
 )
 
-// ===== 作业相关 =====
 data class AssignmentData(
     val id: Long,
     val title: String,
@@ -63,7 +57,7 @@ data class QuestionData(
     val id: Long,
     val assignmentId: Long,
     val questionNo: Int,
-    val questionType: Int,  // 1-选择 2-填空 3-简答
+    val questionType: Int,
     val questionText: String?,
     val answerKey: String,
     val score: Double,
@@ -71,16 +65,35 @@ data class QuestionData(
     val keywords: String?
 )
 
-// ===== 提交相关 =====
+data class CreateAssignmentRequest(
+    val title: String,
+    val description: String?,
+    val classId: Long,
+    val subject: String,
+    val questions: List<CreateQuestionRequest>
+)
+
+data class CreateQuestionRequest(
+    val questionNo: Int,
+    val questionType: Int,
+    val questionText: String,
+    val answerKey: String,
+    val score: Double,
+    val gradingMode: Int,
+    val keywords: String?
+)
+
 data class SubmissionData(
     val id: Long,
     val assignmentId: Long,
     val studentId: Long,
     val imageUrl: String,
-    val status: Int,    // 0-待识别 1-识别中 2-识别完成 3-批改中 4-批改完成 5-失败
+    val status: Int,
     val totalScore: Double?,
     val submitTime: String?,
-    val gradedTime: String?
+    val gradedTime: String?,
+    val assignmentTitle: String? = null,
+    val subject: String? = null
 )
 
 data class GradingDetailData(
@@ -92,14 +105,32 @@ data class GradingResultData(
     val id: Long,
     val questionNo: Int,
     val studentAnswer: String?,
-    val isCorrect: Int?,  // 0-错 1-对 2-部分对
+    val isCorrect: Int?,
     val scoreGot: Double,
     val scoreFull: Double,
     val feedback: String?,
     val gradingType: Int
 )
 
-// ===== 统计相关 =====
+data class AnnotationData(
+    val id: Long,
+    val submissionId: Long,
+    val teacherId: Long,
+    val content: String,
+    val positionX: Int?,
+    val positionY: Int?,
+    val color: String?,
+    val createdTime: String?
+)
+
+data class CreateAnnotationRequest(
+    val submissionId: Long,
+    val content: String,
+    val positionX: Int? = null,
+    val positionY: Int? = null,
+    val color: String = "#FF0000"
+)
+
 data class StatisticsData(
     val totalCount: Long,
     val gradedCount: Long,
@@ -107,4 +138,33 @@ data class StatisticsData(
     val maxScore: Double?,
     val minScore: Double?,
     val passRate: Double
+)
+
+data class ClassStatsData(
+    val classId: Long,
+    val className: String,
+    val assignmentCount: Int,
+    val submissionCount: Int,
+    val gradedCount: Int,
+    val avgScore: Double,
+    val passRate: Double
+)
+
+data class WrongQuestionData(
+    val id: Long,
+    val submissionId: Long,
+    val questionId: Long,
+    val questionNo: Int,
+    val studentAnswer: String?,
+    val isCorrect: Int?,
+    val scoreGot: Double?,
+    val scoreFull: Double?,
+    val feedback: String?,
+    val gradingType: Int?,
+    val createdTime: String?,
+    val assignmentId: Long,
+    val assignmentTitle: String?,
+    val subject: String?,
+    val questionText: String?,
+    val answerKey: String?
 )
