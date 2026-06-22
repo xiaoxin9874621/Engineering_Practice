@@ -25,4 +25,10 @@ public class Submission {
     private LocalDateTime createdTime;
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedTime;
+
+    @TableField(exist = false)
+    private String assignmentTitle;
+
+    @TableField(exist = false)
+    private String subject;
 }
