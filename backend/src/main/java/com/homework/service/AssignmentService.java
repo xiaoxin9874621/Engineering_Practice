@@ -3,8 +3,10 @@ package com.homework.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.homework.entity.Assignment;
+import com.homework.entity.ClassMember;
 import com.homework.entity.QuestionItem;
 import com.homework.mapper.AssignmentMapper;
+import com.homework.mapper.ClassMemberMapper;
 import com.homework.mapper.QuestionItemMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class AssignmentService {
 
     private final AssignmentMapper assignmentMapper;
     private final QuestionItemMapper questionItemMapper;
+    private final ClassMemberMapper classMemberMapper;
 
     @Transactional
     public Assignment createAssignment(Assignment assignment, List<QuestionItem> questions) {
@@ -45,6 +48,24 @@ public class AssignmentService {
                 new Page<>(page, size),
                 new LambdaQueryWrapper<Assignment>()
                         .eq(Assignment::getClassId, classId)
+                        .eq(Assignment::getStatus, 1)
+                        .orderByDesc(Assignment::getCreatedTime)
+        );
+    }
+
+    public Page<Assignment> listByStudentClasses(Long studentId, Integer page, Integer size) {
+        List<Long> classIds = classMemberMapper.selectList(new LambdaQueryWrapper<ClassMember>()
+                        .eq(ClassMember::getStudentId, studentId))
+                .stream()
+                .map(ClassMember::getClassId)
+                .toList();
+        if (classIds.isEmpty()) {
+            return new Page<>(page, size);
+        }
+        return assignmentMapper.selectPage(
+                new Page<>(page, size),
+                new LambdaQueryWrapper<Assignment>()
+                        .in(Assignment::getClassId, classIds)
                         .eq(Assignment::getStatus, 1)
                         .orderByDesc(Assignment::getCreatedTime)
         );
